@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://kit.fontawesome.com/4ed3238d87.js" crossorigin="anonymous"></script>
+
+    <title>map_test</title>
+    <style>
+        #marker {
+            background-image: url('https://www.freepngimg.com/thumb/google/66828-account-google-drive-maps-location-logo-iphone.png');
+            background-size: cover;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .mapboxgl-popup {
+            max-width: 150px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="./index.html"><i class="fas fa-newspaper"></i> News</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <form class="form-inline my-2 my-lg-0">
+            <a class="nav-link" href="./map_test.html"
+                style="color: black; background-color:whitesmoke; border-radius: 12px;">Corona-Update <span
+                    class="sr-only">(current)</span></a>
+        </form>
+    </nav>
+    <div>
+        <div style="border: 1px solid black; width : 230px ; margin : 10px auto ; display: flex; flex-direction: column; align-content: center; justify-content: center; background-color: rgb(233, 233, 233); padding: 5px 5px; border-radius: 12px;">
+            <h3 style=" text-align: center;">Map view</h3>
+            <h6 tyle=" text-align: center;">Click on the  marker to view the details of the area marked</h6>
+        </div>
+    </div>
+    <div id='map' style='width: 100%; height: 600px; border: 2px solid black ;border-radius: 12px;'></div>
+
+</body>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+    integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+    crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+    integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+    crossorigin="anonymous"></script>
+
+<!-- MY script -->
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoicGFuZGV5c2hhcmFkNTIiLCJhIjoiY2tlNW5sOGd2MTU1czJ6bGZ2OWFqeG5leiJ9.gMmrjkOYNmh8TqIwbeoxYA';
+
+    var total_cases = 0;
+
+    function get_data(url = 'https://www.trackcorona.live/api/countries') {
+        const xhr = new XMLHttpRequest();
+
+        xhr.open('GET', url, true);
+
+        xhr.onload = function () {
+            if (this.status == 200) {
+                let file = JSON.parse(this.responseText);
+                var data = file.data;
+                // console.log(data);
+                data.forEach(element => {
+                    var longitude = element.longitude,
+                        latitude = element.latitude,
+                        location = element.location,
+                        confirmed_cases = element.confirmed,
+                        death = element.dead, recover = element.recovered,
+                        update = element.updated;
+
+                    total_cases += confirmed_cases;
+
+                    // create the popup
+                    var popup = new mapboxgl.Popup({ offset: 5 }).setText(
+                        `>>>> ${location}<<<<  | *CONFIRMED CASES : ${confirmed_cases} | *DEATHS : ${death}  | *RECOVERED : ${recover} |  *UPDATED ON : ${update}`
+                    );
+                    // create DOM element for the marker
+                    var el = document.createElement('div');
+                    el.id = 'marker';
+
+                    // Creating a marker
+                    var marker = new mapboxgl.Marker(el)
+                        .setLngLat([longitude, latitude])
+                        .setPopup(popup)
+                        .addTo(map);
+
+
+                });
+
+            }
+            else {
+                console.log("Some error");
+            }
+        }
+
+        xhr.send()
+
+    }
+    get_data();
+
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
+        center: [78.9629, 20.5937], // starting position [lng, lat]
+        zoom: 4 // starting zoom
+    });
+    get_data();
+    console.log(total_cases);
+    get_data(url = 'https://www.trackcorona.live/api/provinces');
+
+</script>
+
+</html>
