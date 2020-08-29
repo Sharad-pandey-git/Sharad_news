@@ -3,7 +3,7 @@
 var flag = 0;
 
 get_news = function (url = 'http://newsapi.org/v2/top-headlines?' + 'country=in&' + 'apiKey=b859df0a50d84e7896e1eb01241b963f') {
-    url = 'http://cors-anywhere.herokuapp.com/'+url;
+    url = 'https://cors-anywhere.herokuapp.com/'+url;
     fetch(url, { headers: new Headers({ "X-Requested-With": "onottouchandfuck" }) })
         .then(a => a.json())
         .then(response => {
